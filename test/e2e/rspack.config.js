@@ -1,9 +1,12 @@
-import * as path from 'path';
-import type { Configuration } from 'webpack';
-import { RetryChunkLoadPlugin } from '../../src';
-import HtmlWebpackPlugin = require('html-webpack-plugin');
+/* eslint-disable no-undef */
+import path from 'path';
+import { RetryChunkLoadPlugin } from '../../dist/index';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-module.exports = {
+/**
+ * @type {import('@rspack/cli').Configuration}
+ */
+export default {
   devtool: false,
   entry: path.join(__dirname, '..', 'integration', 'fixtures', 'index.ts'),
   output: { path: path.join(__dirname, 'dist') },
@@ -13,4 +16,4 @@ module.exports = {
     new RetryChunkLoadPlugin({ maxRetries: 5 }),
   ],
   resolve: { extensions: ['.ts'] },
-} as Configuration;
+};

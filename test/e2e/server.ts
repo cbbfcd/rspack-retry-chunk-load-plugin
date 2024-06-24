@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as express from 'express';
+import path from 'path';
+import express from 'express';
 
 const app = express();
 const port = 3000;

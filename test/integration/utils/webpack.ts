@@ -1,7 +1,7 @@
 import * as path from 'path';
-import * as webpack from 'webpack';
+import { webpack, type Stats } from 'webpack';
 import { RetryChunkLoadPlugin } from '../../../src';
-import MemoryFileSystem = require('memory-fs');
+import MemoryFileSystem from 'memory-fs';
 
 export default function (
   pluginOptions = {},
@@ -11,20 +11,18 @@ export default function (
 
   const fixturesDir = path.join(__dirname, '../fixtures');
 
-  const result = new Promise<webpack.Stats | undefined>((resolve, reject) => {
+  const result = new Promise<Stats | undefined>((resolve, reject) => {
     const compiler = webpack({
       mode: 'development',
       devtool: false,
       entry: path.join(fixturesDir, fixture),
       output: {
         path: path.join(fixturesDir, 'dist'),
+        publicPath: 'auto',
       },
       plugins: [new RetryChunkLoadPlugin(pluginOptions)],
       resolve: {
         extensions: ['.ts', '.js'],
-      },
-      module: {
-        rules: [{ test: /\.ts?$/, loader: 'ts-loader' }],
       },
       ...extend,
     });
