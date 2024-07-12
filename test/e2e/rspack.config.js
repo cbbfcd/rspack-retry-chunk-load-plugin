@@ -1,7 +1,11 @@
 /* eslint-disable no-undef */
 import path from 'path';
-import { RetryChunkLoadPlugin } from '../../dist/index';
+import { RetryChunkLoadPlugin } from '../../dist/index.js';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
  * @type {import('@rspack/cli').Configuration}

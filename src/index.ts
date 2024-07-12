@@ -70,7 +70,7 @@ export class RetryChunkLoadPlugin {
   apply(compiler: WebpackCompiler | RspackCompiler) {
     compiler.hooks.thisCompilation.tap(pluginName, compilation => {
       compilation.hooks.runtimeModule.tap(pluginName, module => {
-        const { isRspack } = this.options;
+        const { isRspack = true } = this.options;
 
         const constructorName = isRspack
           ? (module as any).constructorName
