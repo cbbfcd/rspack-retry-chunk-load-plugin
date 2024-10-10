@@ -1,3 +1,5 @@
+> support rspack, and fix the dts error.
+
 # webpack-retry-chunk-load-plugin
 
 [![Build Status](https://travis-ci.org/mattlewis92/webpack-retry-chunk-load-plugin.svg?branch=master)](https://travis-ci.org/mattlewis92/webpack-retry-chunk-load-plugin)
@@ -15,7 +17,7 @@ A webpack plugin to retry loading of async chunks that failed to load
 
 ```javascript
 // webpack.config.js
-const { RetryChunkLoadPlugin } = require('webpack-retry-chunk-load-plugin');
+const { RetryChunkLoadPlugin } = require('@bobi/rspack-retry-chunk-load-plugin');
 
 plugins: [
   new RetryChunkLoadPlugin({
