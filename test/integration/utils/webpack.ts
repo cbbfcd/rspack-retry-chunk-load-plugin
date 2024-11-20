@@ -27,7 +27,7 @@ export default function (
       ...extend,
     });
 
-    compiler.outputFileSystem = fs;
+    compiler.outputFileSystem = fs as any; // we can ignore this.
 
     compiler.run((error, stats) => {
       if (error) {

@@ -2,7 +2,7 @@ import * as path from 'path';
 import { type MultiStats, rspack, Stats } from '@rspack/core';
 import { RetryChunkLoadPlugin } from '../../../src';
 
-import MemoryFileSystem = require('memory-fs');
+import MemoryFileSystem from 'memory-fs';
 
 export default function (
   pluginOptions = {},

@@ -1,6 +1,6 @@
 import prettier from 'prettier';
 import type { Compiler as WebpackCompiler } from 'webpack';
-import type { Compiler as RspackCompiler } from '@rspack/core';
+import type { Chunk, Compiler as RspackCompiler } from '@rspack/core';
 
 // https://github.com/web-infra-dev/rspack/pull/5370
 function appendWebpackScript(module: any, appendSource: string) {
@@ -18,7 +18,7 @@ function appendRspackScript(
   appendSource: string
 ) {
   try {
-    const source = module.source.source.toString();
+    const source = module.source.source.toString('utf-8');
     module.source.source = Buffer.from(`${source}\n${appendSource}`, 'utf-8');
   } catch (err) {
     console.error('Failed to modify Rspack RuntimeModule');
@@ -69,7 +69,7 @@ export class RetryChunkLoadPlugin {
 
   apply(compiler: WebpackCompiler | RspackCompiler) {
     compiler.hooks.thisCompilation.tap(pluginName, compilation => {
-      compilation.hooks.runtimeModule.tap(pluginName, module => {
+      compilation.hooks.runtimeModule.tap(pluginName, (module, chunk) => {
         const { isRspack = true } = this.options;
 
         const constructorName = isRspack
@@ -96,7 +96,9 @@ export class RetryChunkLoadPlugin {
                   (${this.options.cacheBust})();
                 `
             : '"cache-bust=true"';
-        const addRetryCode = !this.options.chunks;
+        const addRetryCode =
+          !this.options.chunks ||
+          this.options.chunks.includes((chunk as Chunk)?.name || '');
 
         const getRetryDelay =
           typeof this.options.retryDelay === 'string'

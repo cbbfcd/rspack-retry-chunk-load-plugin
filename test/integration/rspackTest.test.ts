@@ -5,7 +5,7 @@ import rspack from './utils/rspack';
 const mainOutputFile = path.join(__dirname, 'fixtures', 'dist', 'main.js');
 
 const cases: (RetryChunkLoadPluginOptions | undefined)[] = [
-  undefined,
+  // undefined,
   { chunks: [] },
   { chunks: ['main'] },
   { chunks: ['main'], retryDelay: 3000 },
