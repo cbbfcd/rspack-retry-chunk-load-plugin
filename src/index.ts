@@ -1,4 +1,4 @@
-// import prettier from 'prettier';
+import prettier from 'prettier';
 import type { Compiler as WebpackCompiler } from 'webpack';
 import type { Chunk, Compiler as RspackCompiler } from '@rspack/core';
 
@@ -151,7 +151,7 @@ export class RetryChunkLoadPlugin {
               });
             };
           }`;
-        const runtimeCode = require('prettier').format(script, {
+        const runtimeCode = prettier.format(script, {
           trailingComma: 'es5',
           singleQuote: true,
           parser: 'babel',

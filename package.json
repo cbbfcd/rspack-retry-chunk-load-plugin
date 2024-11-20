@@ -1,6 +1,6 @@
 {
   "name": "rspack-chunk-load-retry-plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A rspack plugin to retry loading of chunks that failed to load",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -52,7 +52,7 @@
     "ci": "npm run lint && npm run test:ci",
     "prepare": "npm run compile",
     "clean": "gts clean",
-    "compile": "tsc -p tsconfig.build.json",
+    "compile": "tsc -p tsconfig.json",
     "fix": "gts fix",
     "pretest": "npm run compile",
     "posttest": "npm run lint"
