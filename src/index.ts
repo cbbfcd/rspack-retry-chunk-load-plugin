@@ -58,6 +58,13 @@ export interface RetryChunkLoadPluginOptions {
    * For rspack
    */
   isRspack?: boolean;
+  /**
+   * 可选的监控回调函数，用于上报重试相关的指标
+   * 函数接收事件类型和相关数据作为参数
+   * 事件类型包括：'retry', 'success', 'failure'
+   * e.g. `function(event, data) { console.log(event, data); }`
+   */
+  onChunkLoadEvent?: string;
 }
 
 export class RetryChunkLoadPlugin {
@@ -113,6 +120,11 @@ export class RetryChunkLoadPlugin {
           isRspack ? require('@rspack/core') : require('webpack')
         ) as typeof import('webpack');
 
+        const getMonitorCallback = () =>
+          this.options.onChunkLoadEvent
+            ? `var $onChunkLoadEvent = ${this.options.onChunkLoadEvent};`
+            : 'var $onChunkLoadEvent = function(event, data) {};';
+
         const script = `
           if(typeof ${RuntimeGlobals.require} !== "undefined") {
             var oldGetScript = ${RuntimeGlobals.getChunkScriptFilename};
@@ -120,6 +132,7 @@ export class RetryChunkLoadPlugin {
             var queryMap = {};
             var countMap = {};
             var getRetryDelay = ${getRetryDelay}
+            ${getMonitorCallback()}
             ${RuntimeGlobals.getChunkScriptFilename} = function(chunkId){
               var result = oldGetScript(chunkId);
               return result + (queryMap.hasOwnProperty(chunkId) ? '?' + queryMap[chunkId]  : '');
@@ -131,21 +144,39 @@ export class RetryChunkLoadPlugin {
                 if (retries < 1) {
                   var realSrc = oldGetScript(chunkId);
                   error.message = 'Loading chunk ' + chunkId + ' failed after ${maxRetries} retries.\\n(' + realSrc + ')';
-                  error.request = realSrc;${
+                  error.request = realSrc;
+                  $onChunkLoadEvent('failure', {
+                    chunkId: chunkId,
+                    url: realSrc,
+                    error: error,
+                    retryAttempts: ${maxRetries}
+                  });${
                     this.options.lastResortScript
                       ? this.options.lastResortScript
                       : ''
                   }
                   throw error;
                 }
+                var retryAttempt = ${maxRetries} - retries + 1;
+                $onChunkLoadEvent('retry', {
+                  chunkId: chunkId,
+                  retryAttempt: retryAttempt,
+                  remainingRetries: retries - 1
+                });
                 return new Promise(function (resolve) {
-                  var retryAttempt = ${maxRetries} - retries + 1;
                   setTimeout(function () {
                     var retryAttemptString = '&retry-attempt=' + retryAttempt;
                     var cacheBust = ${getCacheBustString()} + retryAttemptString;
                     queryMap[chunkId] = cacheBust;
                     countMap[chunkId] = retries - 1;
-                    resolve(${RuntimeGlobals.ensureChunk}(chunkId));
+                    resolve(${RuntimeGlobals.ensureChunk}(chunkId))
+                      .then(function(result) {
+                        $onChunkLoadEvent('success', {
+                          chunkId: chunkId,
+                          retryAttempt: retryAttempt
+                        });
+                        return result;
+                    });
                   }, getRetryDelay(retryAttempt))
                 })
               });
