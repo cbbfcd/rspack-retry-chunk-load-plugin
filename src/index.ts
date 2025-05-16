@@ -169,14 +169,15 @@ export class RetryChunkLoadPlugin {
                     var cacheBust = ${getCacheBustString()} + retryAttemptString;
                     queryMap[chunkId] = cacheBust;
                     countMap[chunkId] = retries - 1;
-                    resolve(${RuntimeGlobals.ensureChunk}(chunkId))
-                      .then(function(result) {
-                        $onChunkLoadEvent('success', {
-                          chunkId: chunkId,
-                          retryAttempt: retryAttempt
-                        });
-                        return result;
+                    var chunkPromise = ${RuntimeGlobals.ensureChunk}(chunkId);
+                    chunkPromise.then(function(result) {
+                      $onChunkLoadEvent('success', {
+                        chunkId: chunkId,
+                        retryAttempt: retryAttempt
+                      });
+                      return result;
                     });
+                    resolve(chunkPromise);
                   }, getRetryDelay(retryAttempt))
                 })
               });
