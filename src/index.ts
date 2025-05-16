@@ -131,6 +131,7 @@ export class RetryChunkLoadPlugin {
             var oldLoadScript = ${RuntimeGlobals.ensureChunk};
             var queryMap = {};
             var countMap = {};
+            var successMap = {}; // 添加一个映射来跟踪哪些chunk已经成功加载
             var getRetryDelay = ${getRetryDelay}
             ${getMonitorCallback()}
             ${RuntimeGlobals.getChunkScriptFilename} = function(chunkId){
@@ -171,10 +172,14 @@ export class RetryChunkLoadPlugin {
                     countMap[chunkId] = retries - 1;
                     var chunkPromise = ${RuntimeGlobals.ensureChunk}(chunkId);
                     chunkPromise.then(function(result) {
-                      $onChunkLoadEvent('success', {
-                        chunkId: chunkId,
-                        retryAttempt: retryAttempt
-                      });
+                      // 只有当这个chunk的成功事件尚未被触发时才触发
+                      if (!successMap[chunkId]) {
+                        successMap[chunkId] = true;
+                        $onChunkLoadEvent('success', {
+                          chunkId: chunkId,
+                          retryAttempt: retryAttempt
+                        });
+                      }
                       return result;
                     });
                     resolve(chunkPromise);
